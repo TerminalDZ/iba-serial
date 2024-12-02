@@ -384,4 +384,44 @@ class IBASerial
         $this->buffer = "";
         return false;
     }
+
+    /**
+     * Gets a list of available COM ports on Windows
+     * 
+     * @return array Array of available COM ports
+     * @throws SerialException If not running on Windows or command fails
+     */
+    public function getAvailablePorts(): array
+    {
+        if ($this->os !== 'windows') {
+            throw new SerialException("This method is only available on Windows");
+        }
+
+        $ports = [];
+        
+        // Execute mode command to list COM ports
+        $output = [];
+        exec('mode', $output);
+        
+        // Parse the output to find COM ports
+        foreach ($output as $line) {
+            if (preg_match('/^(COM\d+):/', $line, $matches)) {
+                $ports[] = $matches[1];
+            }
+        }
+
+        // If mode command didn't work, try checking common COM ports
+        if (empty($ports)) {
+            for ($i = 1; $i <= 20; $i++) {
+                $port = "COM" . $i;
+                $handle = @fopen("\\\\.\\$port", 'r');
+                if ($handle) {
+                    $ports[] = $port;
+                    fclose($handle);
+                }
+            }
+        }
+
+        return $ports;
+    }
 }

@@ -50,6 +50,35 @@ require_once 'path/to/iba_serial.php';
 
 ## 🔧 Basic Usage
 
+### Automatic Port Detection
+
+```php
+try {
+    // Create a new instance
+    $serial = new IBA\IBASerial();
+    
+    // Get available ports
+    $available_ports = $serial->getAvailablePorts();
+    
+    if (empty($available_ports)) {
+        throw new IBA\SerialException("No COM ports found");
+    }
+    
+    echo "Available ports: " . implode(", ", $available_ports) . "\n";
+    
+    // Use the first available port
+    $port = $available_ports[0];
+    $serial->deviceSet($port);
+    $serial->confBaudRate(9600);
+    
+    // ... rest of your code ...
+} catch (IBA\SerialException $e) {
+    echo "Error: " . $e->getMessage();
+}
+```
+
+### Manual Port Selection
+
 ### Simple AT Command Example
 
 ```php
@@ -176,4 +205,3 @@ Contributions are welcome! Here's how you can help:
 For issues, questions, or suggestions:
 - Create an issue in the GitHub repository
 - Contact via email: boukemoucheidriss@gmail.com
-
